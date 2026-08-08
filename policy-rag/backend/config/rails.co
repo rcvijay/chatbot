@@ -1,0 +1,12 @@
+define user ask off topic
+  "What is the capital of France?"
+  "Can you write a poem?"
+  "How do I cook pasta?"
+
+define bot refuse off topic
+  "I am an internal HR & Policy Assistant. I can only answer questions related to official company policies, travel reimbursements, leaves, IT assets, and operational guidelines."
+
+define flow check policy scope
+  user ask off topic
+  bot refuse off topic
+  stop

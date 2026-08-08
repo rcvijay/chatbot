@@ -1,0 +1,13 @@
+streamlit>=1.30.0
+fastapi>=0.100.0
+uvicorn>=0.22.0
+faiss-cpu>=1.7.4
+rank-bm25>=0.2.2
+sentence-transformers>=2.2.2
+nemoguardrails==0.8.0
+langchain>=0.1.0
+langchain-community>=0.0.10
+pypdf>=3.17.0
+python-multipart>=0.0.6
+requests>=2.31.0
+numpy<2.0.0
