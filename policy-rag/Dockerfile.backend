@@ -2,20 +2,23 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies required for compiling FAISS and NeMo Guardrails
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
     git \
     python3-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements.backend.txt .
 
-# Upgrade pip and install Python packages
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r requirements.txt
+# Install CPU PyTorch first to prevent timeouts
+RUN pip install --no-cache-dir --default-timeout=1000 torch --index-url https://download.pytorch.org/whl/cpu
+
+# Install RAG and Guardrails dependencies
+RUN pip install --no-cache-dir --default-timeout=1000 --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --default-timeout=1000 -r requirements.backend.txt
 
 COPY backend/ ./backend/
 COPY "HR_Document.pdf" ./backend/
