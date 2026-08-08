@@ -6,6 +6,7 @@ sentence-transformers>=2.2.2
 nemoguardrails==0.8.0
 langchain>=0.1.0
 langchain-community>=0.0.10
+langchain-openai>=0.0.5
 pypdf>=3.17.0
 python-multipart>=0.0.6
 requests>=2.31.0

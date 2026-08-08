@@ -21,7 +21,8 @@ RUN pip install --no-cache-dir --default-timeout=1000 --upgrade pip setuptools w
     pip install --no-cache-dir --default-timeout=1000 -r requirements.backend.txt
 
 COPY backend/ ./backend/
-COPY "HR_Document.pdf" ./backend/
+# Replace the previous COPY line with HR_Document.pdf
+COPY HR_Document.pdf ./backend/
 
 WORKDIR /app/backend
 EXPOSE 8000

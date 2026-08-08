@@ -13,28 +13,30 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not OPENAI_API_KEY:
     print("FATAL ERROR: 'OPENAI_API_KEY' environment variable is missing!")
-    print("Please set OPENAI_API_KEY in your environment or .env file before starting.")
     sys.exit(1)
+
+# Ensure the key is explicitly set in os.environ for NeMo / OpenAI SDK
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 app = FastAPI(title="Policy RAG Engine")
 engine = HybridRAGEngine()
 
-# Pass key explicitly to NeMo Guardrails configuration
+# Load NeMo Guardrails Config
 config_path = os.path.join(os.path.dirname(__file__), "config")
 guardrails_config = RailsConfig.from_path(config_path)
 
-# Initialize NeMo Guardrails
-rails = LLMRails(
-    config=guardrails_config,
-    llm_params={"openai_api_key": OPENAI_API_KEY}
-)
+# Initialize NeMo Guardrails (Pass ONLY config to __init__)
+rails = LLMRails(config=guardrails_config)
 
 # Pre-ingest HR Manual on startup
+# Pre-ingest HR Document on startup
 @app.on_event("startup")
 def startup_event():
     sample_pdf = "HR_Document.pdf"
     if os.path.exists(sample_pdf):
-        engine.ingest_pdf(sample_pdf, doc_name="HR_Document", effective_date="20.09.2018")
+        engine.ingest_pdf(sample_pdf, doc_name="HR Document", effective_date="2026")
+    else:
+        print(f"WARNING: {sample_pdf} not found in the backend root directory.")
 
 class QueryRequest(BaseModel):
     question: str
