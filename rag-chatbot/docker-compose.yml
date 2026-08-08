@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. Database: PostgreSQL with pgvector extension
+  # -------------------------------------------------------------
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: chatbot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatbot_db
+      POSTGRES_USER: chat_user
+      POSTGRES_PASSWORD: chat_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - chatbot_net
+
+  # -------------------------------------------------------------
+  # 2. LLM Engine: Local Ollama (Optional: remove if using external API)
+  # -------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: chatbot_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - chatbot_net
+
+  # -------------------------------------------------------------
+  # 3. Backend: FastAPI Server
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chatbot_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://chat_user:chat_password@db:5432/chatbot_db
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - db
+      - ollama
+    networks:
+      - chatbot_net
+
+  # -------------------------------------------------------------
+  # 4. Frontend: NGINX Web Interface
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatbot_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - chatbot_net
+
+networks:
+  chatbot_net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  ollama_data:
